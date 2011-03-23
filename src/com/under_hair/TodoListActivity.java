@@ -1,43 +1,34 @@
 package com.under_hair;
 
 import java.util.ArrayList;
-
+import java.util.Hashtable;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.TableLayout;
+import android.widget.TextView;
 
-public class TodoListActivity extends Activity implements OnItemClickListener
+public class TodoListActivity extends Activity// implements OnItemClickListener
 {
-    private TodoListView _list;
-    //private ListView _list;
+    private ListView _list;
     private ArrayList<Todo> _curList;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.todo_list);
-        //setContentView(R.layout.todo_list_simple);
-        this._list = (TodoListView) this.findViewById(R.id.todo_list);
-        //this._list = (ListView) this.findViewById(R.id.todo_list_simple);
-        //this._list.setSortMode(true);
+        setContentView(R.layout.todo_list_simple);
+        this._list = (ListView) this.findViewById(R.id.todo_list_simple);
         
         final TodoDao dao = new TodoDao(this);
         updateList(dao);
@@ -69,21 +60,69 @@ public class TodoListActivity extends Activity implements OnItemClickListener
             strList.add(todo.getBody());
         }
         this._list.setAdapter(new TodoArrayAdapter(this, R.layout.todo_item, this._curList));
-        //this._list.setAdapter(new ArrayAdapter(this, R.layout.todo_item_simple, strList));
-        this._list.setOnItemClickListener(this);
+        //this._list.setOnItemClickListener(this);
         this._list.setFocusableInTouchMode(true);
         this._list.setCacheColorHint(Color.TRANSPARENT);
     }
-
+/*
     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-        if (arg0 == this._list) {
-            /*
-            TodoDao dao = new TodoDao(this);
-            dao.delete(this._curList.get(arg2));
-            Log.i("INFO", "delete todo...:id=" + this._curList.get(arg2).getTodoId());
-            updateList(dao);
-            */
-        }
+        Log.i("INFO", "arg0:" + arg0);
+        Log.i("INFO", "arg1:" + arg1);
         Log.i("INFO", "arg2:" + arg2);
+        TodoDao dao = new TodoDao(this);
+        dao.delete(this._curList.get(arg2));
+        Log.i("INFO", "delete todo...:id=" + this._curList.get(arg2).getTodoId());
+        updateList(dao);
+    }
+*/
+    
+    
+    class TodoArrayAdapter extends ArrayAdapter {
+        private LayoutInflater _inflater;
+        private ArrayList<Todo> _todoList;
+        private int _textViewResourceId;
+        private Hashtable<Integer, Integer> _buttons;
+        
+        public TodoArrayAdapter(Context context, int textViewResourceId, ArrayList<Todo> items)
+        {
+            super(context, textViewResourceId, items);
+            this._textViewResourceId = textViewResourceId;
+            this._todoList = items;
+            this._inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            this._buttons = new Hashtable<Integer, Integer>();
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent){
+            View view;
+            if(convertView != null){
+                view = convertView;
+            } else {
+                view = this._inflater.inflate(R.layout.todo_item, null);
+            }
+            Todo todo = this._todoList.get(position);
+            ImageButton imgButton = (ImageButton)view.findViewById(R.id.ImageButton01);
+            this._buttons.put(new Integer(imgButton.hashCode()), new Integer(position));
+            imgButton.setImageResource(R.drawable.delete);
+            imgButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    TodoDao dao = new TodoDao(TodoListActivity.this);
+                    int pos = TodoArrayAdapter.this._buttons.get(new Integer(v.hashCode()));
+                    dao.delete(TodoArrayAdapter.this._todoList.get(pos));
+                    Log.i("INFO", "delete todo...:id=" + TodoArrayAdapter.this._todoList.get(pos).getTodoId());
+                    //Log.i("INFO", "delete todo...:body=" + TodoArrayAdapter.this._todoList.get(pos).getBody());
+                    updateList(dao);
+                }
+            });
+            TextView textView = (TextView)view.findViewById(R.id.TodoText);
+            textView.setText(todo.getBody());
+            
+            //’·‰Ÿ‚µ‘Î‰ž
+            //view.setLongClickable(true);
+            //view.setClickable(true);
+            
+            return view;
+        }
     }
 }

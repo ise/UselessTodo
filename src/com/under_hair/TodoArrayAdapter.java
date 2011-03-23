@@ -3,9 +3,9 @@ package com.under_hair;
 import java.util.ArrayList;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
@@ -36,12 +36,13 @@ public class TodoArrayAdapter extends ArrayAdapter {
         Todo todo = this._todoList.get(position);
         ImageButton imgButton = (ImageButton)view.findViewById(R.id.ImageButton01);
         imgButton.setImageResource(R.drawable.delete);
+        imgButton.setClickable(true);
         TextView textView = (TextView)view.findViewById(R.id.TodoText);
         textView.setText(todo.getBody());
         
         //’·‰Ÿ‚µ‘Î‰ž
-        view.setLongClickable(true);
-        view.setSelected(true);
+        //view.setLongClickable(true);
+        view.setClickable(true);
         
         return view;
     }
